@@ -14,6 +14,8 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+const char* PACKAGE_NAME;
+
 // initialisation function for the package/lib
 LUA_EGPKG_API int luaopen_egpkg(lua_State *L);
 

@@ -1,4 +1,4 @@
-egpkg = package.loadlib("lua_egpkg.dll", "luaopen_egpkg")
-egpkg()
-print(calculayt(3, 1))
-print(whatever("great example"))
+x = package.loadlib("lua_egpkg.dll", "luaopen_egpkg")
+x()
+print(egpkg.calculayt(3, 1))
+print(egpkg.whatever("great example"))
