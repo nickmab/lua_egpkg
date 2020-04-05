@@ -6,5 +6,6 @@
 const luaL_Reg mafematikz_exports[];
 
 int mafematikz_calculayt(lua_State *L);
+int mafematikz_max(lua_State* L);
 
 #endif /* LUA_EGPKG_MAFEMATIKZ_H */

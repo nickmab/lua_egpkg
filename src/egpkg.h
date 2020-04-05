@@ -16,6 +16,8 @@
 
 const char* PACKAGE_NAME;
 
+void error(lua_State* L, const char* fmt, ...);
+
 // initialisation function for the package/lib
 LUA_EGPKG_API int luaopen_egpkg(lua_State *L);
 

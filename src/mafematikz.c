@@ -4,34 +4,45 @@
 
 const luaL_Reg mafematikz_exports[] = {
 	{"calculayt", mafematikz_calculayt},
+	{"max", mafematikz_max},
 	{NULL, NULL}
 };
 
 int mafematikz_calculayt(lua_State* L) {
 	double arg1 = luaL_checknumber(L, 1);
 	double arg2 = luaL_checknumber(L, 2);
+	lua_pushnumber(L, arg1 - arg2);
+	return 1;
+}
+
+int mafematikz_max(lua_State* L) {
+	const int numOfArgs = lua_gettop(L);
+	if (numOfArgs == 0) {
+		lua_pushnil(L);
+		return 1;
+	}
 	
 	double_vec_t* vec = double_vec_new();
-	if (vec == NULL) goto giveup;
-	bool errorOut;
-	double_vec_push_back(vec, 5.0, &errorOut);
-	if (errorOut) goto giveup;
-	double_vec_push_back(vec, 6.0, &errorOut);
-	if (errorOut) goto giveup;
-	double_vec_push_back(vec, -1.0, &errorOut);
-	if (errorOut) goto giveup;
-	double_vec_push_back(vec, 3.0, &errorOut);
-	if (errorOut) goto giveup;
+	if (vec == NULL) {
+		error(L, "Unable to malloc double_vec_t in function mafematikz_max");
+	}
+	
+	char errorCode;
+	
+	for (int i = 1; i <= numOfArgs; i++) {
+		double d = luaL_checknumber(L, i);
+		double_vec_push_back(vec, d, &errorCode);
+		if (errorCode != DOUBLE_VEC_SUCCESS) {
+			error(L, "Error code %d operating on double_vec in function mafematikz_max: %s",
+				errorCode, errCodeToString(errorCode));
+		}
+	}
 
-	double maxVal = double_vec_max_value(vec, &errorOut);
-	if (errorOut) goto giveup;
-	lua_pushnumber(L, maxVal);
-
-	double_vec_delete(vec);
-	return 1;
-
-	giveup:
-	double_vec_delete(vec);
-	lua_pushnumber(L, arg1 - arg2);
+	const double result = double_vec_max_value(vec, &errorCode);
+	if (errorCode != DOUBLE_VEC_SUCCESS) {
+		error(L, "Error code %d operating on double_vec in function mafematikz_max: %s",
+			errorCode, errCodeToString(errorCode));
+	}
+	lua_pushnumber(L, result);
 	return 1;
 }
