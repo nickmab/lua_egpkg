@@ -2,9 +2,10 @@ cmake_minimum_required (VERSION 3.15)
 
 set (LIB_NAME lua_egpkg)
 
-file (GLOB_RECURSE PKG_SRC "*.c")
+file (GLOB_RECURSE PKG_C_SRC "*.c")
+file (GLOB_RECURSE PKG_CPP_SRC "*.cpp")
 
-add_library (${LIB_NAME} SHARED ${PKG_SRC})
+add_library (${LIB_NAME} SHARED ${PKG_CPP_SRC} ${PKG_C_SRC})
 
 target_compile_definitions (${LIB_NAME} PUBLIC LUA_BUILD_AS_DLL)
 
