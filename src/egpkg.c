@@ -19,24 +19,11 @@ void error(lua_State* L, const char* fmt, ...) {
     exit(EXIT_FAILURE);
 }
 
-static const luaL_Reg* pkg_exports[] = {
-    &mafematikz_exports,
-    &sztryng_exports,
-    &stateful_exports,
-    NULL
-};
-
 LUA_EGPKG_API int luaopen_egpkg(lua_State *L) {
-    stateful_init(L);
     lua_newtable(L);
-    for (int i = 0; pkg_exports[i]; i++) {
-        luaL_Reg* mod = pkg_exports[i];
-        for (int j = 0; mod[j].name; j++) {
-            lua_pushstring(L, mod[j].name);
-            lua_pushcfunction(L, mod[j].func);
-            lua_settable(L, -3);
-        }
-    }
+    stateful_init(L);
+    mafematikz_init(L);
+    sztryng_init(L);
     lua_setglobal(L, PACKAGE_NAME);
     return 0;
 }

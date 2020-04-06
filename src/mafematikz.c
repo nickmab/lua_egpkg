@@ -2,11 +2,34 @@
 
 #include <double_vec.hpp>
 
-const luaL_Reg mafematikz_exports[] = {
+static const char* MODULE_NAME = "mafematikz";
+
+static const luaL_Reg cfunction_exports[] = {
 	{"calculayt", mafematikz_calculayt},
 	{"max", mafematikz_max},
 	{NULL, NULL}
 };
+
+void mafematikz_init(lua_State* L) {
+	const int type = lua_type(L, -1);
+	if (type != LUA_TTABLE) {
+		error("Initialization error; mafematikz_init expected table atop "
+			"the stack. Instead got type ID %d.", type);
+	}
+	// create a table (to nest into the parent table)
+	// with name (key) "MODULE_NAME" and value "newtable"
+	lua_pushstring(L, MODULE_NAME); // +1 on the stack
+	lua_newtable(L);                // +1 on the stack
+	// add our own local function definitions to our module's table
+	for (int i = 0; cfunction_exports[i].name; i++) {
+		lua_pushstring(L, cfunction_exports[i].name); // +1
+		lua_pushcfunction(L, cfunction_exports[i].func); // +1
+		lua_settable(L, -3); // -2 from the stack
+	}
+	// now add our module's table to the parent / package one.
+	lua_settable(L, -3);
+	return 0;
+}
 
 int mafematikz_calculayt(lua_State* L) {
 	double arg1 = luaL_checknumber(L, 1);

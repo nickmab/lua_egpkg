@@ -2,17 +2,35 @@
 
 #include <stdio.h>
 
-void stateful_init(lua_State* L) {
-	newStaticCounter(L, &staticCounter, "counter");
-}
-
-const luaL_Reg stateful_exports[] = {
-	{"statefulA", stateful_statefulA},
-	{"statefulB", stateful_statefulB},
-	{NULL, NULL}
-};
+static const char* MODULE_NAME = "stateful";
 
 static const char* CallCounter = "egpkg_stateful_call_counter";
+
+void stateful_init(lua_State* L) {
+	const int type = lua_type(L, -1);
+	if (type != LUA_TTABLE) {
+		error("Initialization error; stateful_init expected table atop "
+			"the stack. Instead got type ID %d.", type);
+	}
+	// create a table (to nest into the parent table)
+	// with name (key) "MODULE_NAME" and value "newtable"
+	lua_pushstring(L, MODULE_NAME); // +1 on the stack
+	lua_newtable(L);                // +1 on the stack
+	
+	// add our own local function definitions to our module's table
+	lua_pushstring(L, "statefulA"); // closure name/key in our table...
+	newStaticCounter(L, &stateful_statefulA);
+	lua_settable(L, -3); // -2 from the stack
+	
+	// add our own local function definitions to our module's table
+	lua_pushstring(L, "statefulB"); // closure name/key in our table...
+	newStaticCounter(L, &stateful_statefulB);
+	lua_settable(L, -3); // -2 from the stack
+
+	// now add our module's table to the parent / package one.
+	lua_settable(L, -3);
+	return 0;
+}
 
 static int getNextCallCounter(lua_State* L) {
 	// first we get the current value of the counter...
@@ -42,33 +60,34 @@ static int getNextCallCounter(lua_State* L) {
 	return counterValue;
 }
 
-// to be used as a closure within individual functions - this way we create
-// something like a "static" variable with a Lua type, local/private to a single function.
-static int staticCounter(lua_State* L) {
-	int val = lua_tointeger(L, lua_upvalueindex(1));
-	// this is basically our "return value" to be left on the stack.
-	lua_pushinteger(L, ++val); // +1 onto the stack
-	// this is the value we put back into the upvalue index.
-	lua_pushinteger(L, val); // +1 onto the stack
-	lua_replace(L, lua_upvalueindex(1)); // -1 from the stack
-	return 1;
-}
+#define GET_AND_INCR_STATIC_COUNT(variable_name) \
+	int variable_name = lua_tointeger(L, lua_upvalueindex(1)); \
+	/* this is basically our "return value" to be left on the stack. */ \
+	lua_pushinteger(L, ++ ## variable_name); /* +1 onto the stack */ \
+	lua_replace(L, lua_upvalueindex(1)); /* -1 from the stack */
 
-static int newStaticCounter(lua_State* L, lua_CFunction target, const char* name) {
+static int newStaticCounter(lua_State* L, lua_CFunction target) {
 	lua_pushnumber(L, 0); // initialize the counter at zero...
 	lua_pushcclosure(L, target, 1); // closure with 1 upvalue
-	lua_setglobal(L, name);
-	return 0;
+	return 1; // new closure is left on the stack.
 }
 
 int stateful_statefulA(lua_State* L) {
 	const int globalCallCounter = getNextCallCounter(L);
+	GET_AND_INCR_STATIC_COUNT(localCallCounter);
 	lua_pushnumber(L, globalCallCounter);
-	return 1;
+	lua_pushnumber(L, localCallCounter);
+	return 2;
 }
 
 int stateful_statefulB(lua_State* L) {
 	const int globalCallCounter = getNextCallCounter(L);
-	lua_pushnumber(L, globalCallCounter+(double)7);
+	GET_AND_INCR_STATIC_COUNT(localCallCounter);
+	char buf[64];
+	sprintf(buf, "statefulB; global call count is %d and local is %d.\0", 
+		globalCallCounter, localCallCounter);
+	lua_pushstring(L, buf);
 	return 1;
 }
+
+#undef GET_AND_INCR_STATIC_COUNT
