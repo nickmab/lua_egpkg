@@ -10,6 +10,8 @@
     #endif
 #endif
 
+#define LAPI_DECL(function_name) static int function_name ## (lua_State* L)
+
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>

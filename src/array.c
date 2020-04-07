@@ -13,6 +13,7 @@ static const luaL_Reg array_metamethods[] = {
     {"get", array_get},
     {"size", array_size},
     {"countNonZero", array_countNonZero},
+    {"iter", array_iterator_closure},
 	{NULL, NULL}
 };
 
@@ -162,7 +163,37 @@ static int array_meta_newindex(lua_State* L) {
         lua_pushvalue(L, 2);
         lua_pushvalue(L, 3);
         lua_settable(L, -3);
-        lua_pop(L, -1); // get it off the stack
+        lua_settop(L, -1); // get it (the metatable) off the stack.
         return 0;
+    }
+}
+
+// provides functionality basically identical to ipairs(a) for the array
+static int array_iterator_closure(lua_State* L) {
+    array_size(L);
+    // closure with 1 upvalue: the loop max count.
+    // note that the initial upvalue - the size of the array - 
+    // will already be on top of the stack, ready to get chewed here...
+    lua_pushcclosure(L, &array_iterator, 1); 
+    // new closure is left on the stack.
+    lua_pushvalue(L, 1); // this is the array user data
+    lua_pushinteger(L, 0); // the initial loop index/counter
+    return 3; 
+}
+
+static int array_iterator(lua_State* L) {
+    const int arraySize = lua_tointeger(L, lua_upvalueindex(1));
+    int idx = luaL_checkinteger(L, 2);
+    lua_remove(L, 2); // now we've read the int, we can burn it.
+    if (idx++ == arraySize) {
+        lua_pushnil(L);
+        return 1;
+    }
+    else
+    {
+        lua_pushinteger(L, idx); // once for the return value...
+        lua_pushinteger(L, idx); // and once as arg for get function...
+        array_get(L); // chews arg, replaces with 'gotten' value
+        return 2;
     }
 }

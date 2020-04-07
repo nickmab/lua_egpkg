@@ -71,7 +71,7 @@ static int newStaticCounter(lua_State* L, lua_CFunction target) {
 	return 1; // new closure is left on the stack.
 }
 
-int stateful_statefulA(lua_State* L) {
+static int stateful_statefulA(lua_State* L) {
 	const int globalCallCounter = getNextCallCounter(L);
 	GET_AND_INCR_STATIC_COUNT(localCallCounter);
 	lua_pushnumber(L, globalCallCounter);
@@ -79,7 +79,7 @@ int stateful_statefulA(lua_State* L) {
 	return 2;
 }
 
-int stateful_statefulB(lua_State* L) {
+static int stateful_statefulB(lua_State* L) {
 	const int globalCallCounter = getNextCallCounter(L);
 	GET_AND_INCR_STATIC_COUNT(localCallCounter);
 	char buf[64];

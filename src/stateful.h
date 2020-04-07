@@ -10,7 +10,7 @@ static const char* CallCounter;
 void stateful_init(lua_State*);
 static int newStaticCounter(lua_State*, lua_CFunction target);
 
-int stateful_statefulA(lua_State*);
-int stateful_statefulB(lua_State*);
+LAPI_DECL(stateful_statefulA);
+LAPI_DECL(stateful_statefulB);
 
 #endif /* #ifndef LUA_EGPKG_STATEFUL_H */

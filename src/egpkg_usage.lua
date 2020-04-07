@@ -14,11 +14,16 @@ a = egpkg.array.new(10)
 print(a)
 a[7] = 22
 print(a[7])
-print(a[8])
 a['newkey'] = 77
 print(a[8])
 print(a['newkey'])
-print(a:size())
+
 a:set(3, 77)
-print(a:get(3))
-print(a:countNonZero())
+print("Get item 3: " .. a:get(3))
+
+print("Array size is " .. a:size())
+print("There are " .. a:countNonZero() .. " nonzero elements.")
+
+for k,v in a:iter() do
+    print("Array elem at key " .. k .. " is " .. v)
+end

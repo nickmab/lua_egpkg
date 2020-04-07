@@ -31,14 +31,14 @@ void mafematikz_init(lua_State* L) {
 	return 0;
 }
 
-int mafematikz_calculayt(lua_State* L) {
+static int mafematikz_calculayt(lua_State* L) {
 	double arg1 = luaL_checknumber(L, 1);
 	double arg2 = luaL_checknumber(L, 2);
 	lua_pushnumber(L, arg1 - arg2);
 	return 1;
 }
 
-int mafematikz_max(lua_State* L) {
+static int mafematikz_max(lua_State* L) {
 	const int numOfArgs = lua_gettop(L);
 	if (numOfArgs == 0) {
 		lua_pushnil(L);

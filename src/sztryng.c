@@ -28,7 +28,7 @@ void sztryng_init(lua_State* L) {
 	return 0;
 }
 
-int sztryng_whatever(lua_State* L) {
+static int sztryng_whatever(lua_State* L) {
     const char* s = luaL_checkstring(L, 1);
     lua_pushfstring(L, "sztryng says hello: %s", s);
     return 1;
