@@ -29,7 +29,6 @@ void stateful_init(lua_State* L) {
 
 	// now add our module's table to the parent / package one.
 	lua_settable(L, -3);
-	return 0;
 }
 
 static int getNextCallCounter(lua_State* L) {

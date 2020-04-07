@@ -9,3 +9,16 @@ print(egpkg.stateful.statefulA())
 print(egpkg.stateful.statefulB())
 print(egpkg.mafematikz.max(4, -2.5, "6.6", 1.1))
 print(egpkg.mafematikz.max())
+
+a = egpkg.array.new(10)
+print(a)
+a[7] = 22
+print(a[7])
+print(a[8])
+a['newkey'] = 77
+print(a[8])
+print(a['newkey'])
+print(a:size())
+a:set(3, 77)
+print(a:get(3))
+print(a:countNonZero())
